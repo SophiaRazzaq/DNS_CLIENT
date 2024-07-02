@@ -88,7 +88,7 @@ async function main() {
 
     const responseQuery = new DNSQuery();
     responseQuery.read(buffer);
-    //console.log("response query:",responseQuery);  
+    console.log("response query:",responseQuery);  
      
 
 
