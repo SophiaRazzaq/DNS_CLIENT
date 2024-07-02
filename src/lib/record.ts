@@ -1,5 +1,5 @@
 import { DNSBuffer } from './buffer';
-// record / asnwer 
+
 export class DNSAnswer {
     name: string;
     type: number;
@@ -17,28 +17,22 @@ export class DNSAnswer {
         this.rdata = '';
     }
 
+    write(buffer: DNSBuffer) {
+        buffer.writeString(this.name);
+        buffer.writeUInt16(this.type);
+        buffer.writeUInt16(this.class);
+        buffer.writeUInt32(this.ttl);
+        buffer.writeUInt16(this.len);
+        buffer.writeRData(this.rdata, this.type, this.len); 
+    }
+
     read(buffer: DNSBuffer) {
-        console.log("_______________________________________________________________");
-        console.log("Offset before name:", buffer.getOffset());
         this.name = buffer.readDomainName();
-
-        console.log("Offset before reading type and class:", buffer.getOffset());
-
         this.type = buffer.readUInt16();
         this.class = buffer.readUInt16();
-        //console.log(this.type);
-        console.log("Offset after reading type and class:", buffer.getOffset());
-
         this.ttl = buffer.readUInt32();
         this.len = buffer.readUInt16();
-
-        console.log("Offset after reading TTL and length:", buffer.getOffset());
-
         this.rdata = buffer.readRData(this.type, this.len);
-
-        console.log("Offset after reading RData:", buffer.getOffset());
-        
-        console.log("_______________________________________________________________");
     }
 
     getName(): string {

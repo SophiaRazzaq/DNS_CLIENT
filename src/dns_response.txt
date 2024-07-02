@@ -1,11 +1,10 @@
 Received response:
 Header:
-  Request ID: 45631
   Flags: 1000000110000000
-  QR: -43351
-  OPCode: 14
-  AA: 1
-  TC: 1
+  QR: 0
+  OPCode: 0
+  AA: 0
+  TC: 0
   RD: 1
   RA: 1
   Z: 0
@@ -24,14 +23,14 @@ Answers:
   Name: carbonteq.com
   Type: 1
   Class: 1
-  TTL: 300
+  TTL: 198
   Length: 4
-  RData: 75.2.70.75
+  RData: 99.83.190.102
 
   Name: carbonteq.com
   Type: 1
   Class: 1
-  TTL: 300
+  TTL: 198
   Length: 4
-  RData: 99.83.190.102
+  RData: 75.2.70.75
 

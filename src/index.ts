@@ -1,11 +1,11 @@
-import { DNSBuffer } from './buffer';
-import { DNSHeader } from './header';
-import { DNSQuestion } from './question';
-import { DNSQuery } from './query';
-import { DNSNetwork } from './network';
+import { DNSBuffer } from './lib/buffer';
+import { DNSHeader  } from './lib/header';
+import { DNSQuestion } from './lib/question';
+import { DNSQuery } from './lib/packet';
+import { DNSNetwork } from './lib/network';
 import { FileReader } from './fileReader';
-import { CLI } from './cli';
-import { DNSAnswer } from './record';
+import { CLI } from './CLIReader';
+import { DNSAnswer } from './lib/record';
 import * as fs from 'fs';
 
 async function main() {
@@ -41,11 +41,10 @@ async function main() {
       queryType = await CLI.askQuestion('Enter the query type (A/AAAA/CNAME): ');
 
       buffer = new DNSBuffer();
-      const header = new DNSHeader();
-      header.qdCount = 1;
+      const header = DNSHeader .create(0, 0); 
 
       const question = new DNSQuestion(domainName, 
-        queryType === 'A' ? 1 : queryType === 'AAAA' ? 28 : 5);
+        queryType === 'A' ? 1 : queryType === 'AAAA' ? 28 : 5 );
 
       const query = new DNSQuery();
       query.header = header;
@@ -89,42 +88,9 @@ async function main() {
 
     const responseQuery = new DNSQuery();
     responseQuery.read(buffer);
-    console.log("response query:",responseQuery);
-    //console.log("BUFFER",buffer);
-    console.log('\nReceived response:');
-    console.log('Header:');
-    console.log(`  Request ID: ${responseQuery.header.id}`);
-    console.log(`  Flags: ${responseQuery.header.flags}`);
-    console.log(`  QR: ${responseQuery.header.flags >> 15}`);
-    console.log(`  OPCode: ${(responseQuery.header.flags >> 11) & 0xf}`);
-    console.log(`  AA: ${(responseQuery.header.flags >> 10) & 0x1}`);
-    console.log(`  TC: ${(responseQuery.header.flags >> 9) & 0x1}`);
-    console.log(`  RD: ${(responseQuery.header.flags >> 8) & 0x1}`);
-    console.log(`  RA: ${(responseQuery.header.flags >> 7) & 0x1}`);
-    console.log(`  Z: ${(responseQuery.header.flags >> 4) & 0x7}`);
-    console.log(`  RCODE: ${responseQuery.header.flags & 0xf}`);
-    
-    console.log('Question:');
-    console.log(`  Domain Name: ${responseQuery.questions[0].name}`);
-    console.log(`  Query Type: ${responseQuery.questions[0].type}`);
-    console.log(`  Questions Asked: ${responseQuery.header.qdCount}`);
-    console.log(`  Answer Count: ${responseQuery.header.anCount}`);
-    console.log(`  Authority Count: ${responseQuery.header.nsCount}`);
-    console.log(`  Additional Count: ${responseQuery.header.arCount}`);
+    //console.log("response query:",responseQuery);  
      
 
-if (responseQuery.answers.length > 0) {
-  const answer = responseQuery.answers[0];
- 
-  console.log(`Name: ${answer.name}`);
-  console.log(`Type: ${answer.type}`); 
-  console.log(`Class: ${answer.class}`);  
-  console.log(`TTL: ${answer.ttl}`);
-  console.log(`RData Length: ${answer.len}`);
-  console.log(`RData: ${answer.rdata}`);
-} else {
-  console.log('No answers found in the response.');
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,18 +98,17 @@ if (responseQuery.answers.length > 0) {
 ///                                    SAVING THE DATA IN OUTPUT FILE
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    const output = `Received response:
+const output = `Received response:
 Header:
-  Request ID: ${responseQuery.header.id}
-  Flags: ${responseQuery.header.flags}
-  QR: ${responseQuery.header.flags >> 15}
-  OPCode: ${(responseQuery.header.flags >> 11) & 0xf}
-  AA: ${(responseQuery.header.flags >> 10) & 0x1}
-  TC: ${(responseQuery.header.flags >> 9) & 0x1}
-  RD: ${(responseQuery.header.flags >> 8) & 0x1}
-  RA: ${(responseQuery.header.flags >> 7) & 0x1}
-  Z: ${(responseQuery.header.flags >> 4) & 0x7}
-  RCODE: ${responseQuery.header.flags & 0xf}
+  QR: ${responseQuery.header.qr}
+  OPCode: ${responseQuery.header.opCode}
+  AA: ${responseQuery.header.aa}
+  TC: ${responseQuery.header.tc}
+  RD: ${responseQuery.header.rd}
+  RA: ${responseQuery.header.ra}
+  Z: ${responseQuery.header.z}
+  RCODE: ${responseQuery.header.rCode}
+
 
 Question:
   Domain Name: ${responseQuery.questions[0]?.name}
